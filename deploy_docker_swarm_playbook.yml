@@ -68,6 +68,7 @@
         name: docker
         state: started
         enabled: yes
+        masked: no
 
     - name: Install Docker Module for Python
       pip:
@@ -80,11 +81,11 @@
         dest: "/etc/docker/daemon.json"
       #notify: Restart docker daemon
 
-    - name: Expose docker API REST
-      template:
-        src: docker.service.j2
-        dest: /usr/lib/systemd/system/docker.service
-      notify: Restart docker daemon
+    #- name: Expose docker API REST
+    #  template:
+    #    src: docker.service.j2
+    #    dest: /usr/lib/systemd/system/docker.service
+    #  notify: Restart docker daemon
 
   handlers:
     - name: Restart docker daemon
@@ -92,3 +93,4 @@
         name: docker
         state: restarted
         daemon_reload: yes
+        masked: no

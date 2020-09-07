@@ -30,7 +30,6 @@ One pre-check requires that your host file must contains the following lines:
 
 ```
 # /etc/hosts
-10.0.8.2 client
 192.168.1.101 swarm-manager docker.1
 192.168.1.102 swarm-worker docker.2
 ```
