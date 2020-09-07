@@ -1,0 +1,8 @@
+---
+- name: docker-secure
+  src: alexinthesky.secure-docker-daemon
+  # no versions - only branch master
+
+- name: docker-swarm
+  src: atosatto.docker-swarm
+  version: v2.3.0

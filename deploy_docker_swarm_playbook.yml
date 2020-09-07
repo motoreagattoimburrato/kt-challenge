@@ -1,0 +1,94 @@
+---
+- hosts: docker_cluster
+  become: true
+  become_method: sudo
+
+  roles:
+    - role: docker-secure
+    - role: docker-swarm
+
+  vars:
+      dds_host: 192.168.42.101
+      dds_restart_docker: yes
+      dds_server_cert_path: /etc/docker/certs
+      docker_swarm_interface: "eth1"
+      docker_swarm_addr: 192.168.42.101
+      docker_swarm_port: 2377
+
+  pre_tasks:
+    - name: Remove old docker version (if they are presents)
+      package:
+        name:
+          - docker
+          - docker-client
+          - docker-client-latest
+          - docker-common
+          - docker-latest
+          - docker-latest-logrotate
+          - docker-logrotate
+          - docker-engine
+        state: absent
+
+    - name: Install required system packages
+      package:
+        name:
+          - python3
+          - python3-pip
+          - python3-setuptools
+          - ca-certificates
+          - curl
+          - virtualenv
+          - yum-utils
+        update_cache: yes
+        state: present
+
+    - name: Check Docker is already installed
+      command: "rpm -qa | grep docker"
+      register: result
+      ignore_errors: True
+
+    - name: Add Docker CE repository
+      shell: dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        creates: /etc/yum.repos.d/docker_ce.repo
+      when: result is success
+
+    - name: Install containerd.io rpm (Centos8 workaround)
+      shell: dnf install -y https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+      when: result is success
+
+    - name: Update apt and install Docker CE
+      package:
+        name: docker-ce
+        update_cache: yes
+        state: present
+
+    - name: Start and enable service docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+        executable: /usr/bin/pip3
+
+    - name: Setup Docker Daemon configuration
+      template:
+        src: daemon.json.j2
+        dest: "/etc/docker/daemon.json"
+      #notify: Restart docker daemon
+
+    - name: Expose docker API REST
+      template:
+        src: docker.service.j2
+        dest: /usr/lib/systemd/system/docker.service
+      notify: Restart docker daemon
+
+  handlers:
+    - name: Restart docker daemon
+      systemd:
+        name: docker
+        state: restarted
+        daemon_reload: yes
