@@ -1,5 +1,5 @@
 ---
-- hosts: docker_cluster
+- hosts: all
   become: true
   become_method: sudo
 
@@ -12,7 +12,7 @@
       dds_restart_docker: yes
       dds_server_cert_path: /etc/docker/certs
       docker_swarm_interface: "eth1"
-      docker_swarm_addr: 192.168.42.101
+      #docker_swarm_addr: 192.168.42.101
       docker_swarm_port: 2377
 
   pre_tasks:
@@ -81,11 +81,11 @@
         dest: "/etc/docker/daemon.json"
       #notify: Restart docker daemon
 
-    #- name: Expose docker API REST
-    #  template:
-    #    src: docker.service.j2
-    #    dest: /usr/lib/systemd/system/docker.service
-    #  notify: Restart docker daemon
+    - name: Expose docker API REST
+      template:
+        src: docker.service.j2
+        dest: /usr/lib/systemd/system/docker.service
+      notify: Restart docker daemon
 
   handlers:
     - name: Restart docker daemon

@@ -8,7 +8,6 @@ Vagrant.configure("2") do |config|
 
       box.vm.hostname = "docker.#{box_id}"
       box.vm.network "private_network", ip: "192.168.42.#{100+box_id}"
-      #box.vm.network "forwarded_port", guest: 3306, host: 3306, auto_correct: true
       box.vm.box = "bento/centos-8"
 
       box.vm.provider "virtualbox" do |vb|
@@ -31,9 +30,10 @@ Vagrant.configure("2") do |config|
           ansible.verbose = "vv"
           ansible.playbook = "./deploy_docker_swarm_playbook.yml"
           ansible.galaxy_role_file = "./requirements.yml"
-          ansible.groups = {
-            "docker_cluster" => ["docker.1", "docker.2"]
-          }
+          ansible.inventory_path = "./inventory"
+          #ansible.groups = {
+          #  "all" => ["docker.1", "docker.2"]
+          #}
         end
       end
 

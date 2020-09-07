@@ -1,6 +1,8 @@
 language: python
 install:
-  - pip install ansible-lint
+  - pip install ansible-lint molecule docker
   - ansible-lint --version
+  - molecule --version
 script:
   - ansible-lint .
+  - molecule test --all
