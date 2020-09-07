@@ -1,6 +1,6 @@
-jobs:
-  include:
-    - stage: Validate Vagrantfile
-      script: vagrant validate
-    - stage: Ansible Lint on Playbook
-      script: ansible-lint ./deploy_docker_swarm_playbook.yml
+language: python
+install:
+  - pip install ansible-lint
+  - ansible-lint --version
+script:
+  - ansible-lint .
