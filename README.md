@@ -34,6 +34,18 @@ One pre-check requires that your host file must contains the following lines:
 192.168.1.102 swarm-worker docker.2
 ```
 
+### Vars
+
+```
+# docker_swarm_service variables
+## service name
+deploy_docker_service_name: "example_service"
+## image to use
+deploy_docker_image: "nginx:latest"
+## network name
+deploy_docker_network: "example_network"
+```
+
 ## Start Demo
 
 ### Vagrant
