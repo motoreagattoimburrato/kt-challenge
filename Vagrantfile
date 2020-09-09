@@ -30,10 +30,11 @@ Vagrant.configure("2") do |config|
           ansible.verbose = "vv"
           ansible.playbook = "./deploy_docker_swarm_playbook.yml"
           ansible.galaxy_role_file = "./requirements.yml"
-          ansible.inventory_path = "./inventory"
-          #ansible.groups = {
-          #  "all" => ["docker.1", "docker.2"]
-          #}
+          ansible.groups = {
+            "docker_engine" => ["docker.1", "docker.2"],
+            "docker_swarm_manager" => ["docker.1"],
+            "docker_swarm_worker" => ["docker.2"]
+          }
         end
       end
 

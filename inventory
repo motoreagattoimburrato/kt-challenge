@@ -8,8 +8,6 @@ docker.2
 
 [docker_swarm_manager]
 docker.1 swarm_labels=deploy
-docker.2 swarm_labels='["docker", "foo", "bar"]'
 
 [docker_swarm_worker]
-docker.1 swarm_labels=deploy
 docker.2 swarm_labels='["docker", "foo", "bar"]'

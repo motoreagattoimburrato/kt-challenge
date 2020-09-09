@@ -44,6 +44,23 @@ Just launch this command:
 vagrant up
 ```
 
+When the VMs starter, connect to docker-swarm manager an try to list docker nodes:
+
+```
+vagrant ssh docker.1
+sudo docker node ls
+
+# example output
+ID                            HOSTNAME            STATUS              AVAILABILITY        MANAGER STATUS      ENGINE VERSION
+wpkl33f4c3jfn84reza7835ri *   docker.1            Ready               Active              Leader              19.03.12
+9i80y96unibtwfdzrastzj617     docker.2            Ready               Active                                  19.03.12
+
+```
+
+The playbook already deploy a services to test that you can see here (nginx default page): http://192.168.42.102:8080/
+
+(TCP DOCKER API EXPOSE TO: tcp://192.168.42.101:2376)
+
 --------------------------------
 
 ## Notes
@@ -57,6 +74,11 @@ When I use `vagrant`, I prefer always to use [bento vagrant boxes](https://app.v
 In particular, in [Vagrantfile](./Vagrantfile) is declared `bento/centos-8`
 but it has an issue `docker-ce` and `containerd.io` [(workaround)](https://vexpose.blog/2020/04/02/installation-of-docker-fails-on-centos-8-with-error-package-containerd-io-1-2-10-3-2-el7-x86-64-is-excluded/).
 
+### Shell tasks
+
+To use the workaround previously described it was necessary use `shell` ansible module.
+For ansible best practice, you should use this only when there aren't valid options to do "what you have to".
+
 ### Referecens
 
  - https://github.com/chef/bento
@@ -69,3 +91,6 @@ but it has an issue `docker-ce` and `containerd.io` [(workaround)](https://vexpo
  - https://github.com/ansible/role-secure-docker-daemon
  - https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html
  - https://github.com/jobin-james/docker-swarm/blob/master/docker-swarm.yml
+ - https://github.com/monicagangwar/docker-swarm-vagrant
+ - https://github.com/krol3/nginx-ansible-molecule/tree/master/roles/nginx/molecule/default
+ - https://opensource.com/article/18/12/testing-ansible-roles-molecule

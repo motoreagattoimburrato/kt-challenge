@@ -42,20 +42,13 @@
         update_cache: yes
         state: present
 
-    - name: Check Docker is already installed
-      command: "rpm -qa | grep docker"
-      register: result
-      ignore_errors: True
-
     - name: Add Docker CE repository
       shell: dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
       args:
         creates: /etc/yum.repos.d/docker_ce.repo
-      when: result is success
 
     - name: Install containerd.io rpm (Centos8 workaround)
       shell: dnf install -y https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
-      when: result is success
 
     - name: Update apt and install Docker CE
       package:
@@ -75,6 +68,7 @@
         name: docker
         executable: /usr/bin/pip3
 
+  tasks:
     - name: Setup Docker Daemon configuration
       template:
         src: daemon.json.j2
@@ -93,4 +87,33 @@
         name: docker
         state: restarted
         daemon_reload: yes
-        masked: no
+
+- hosts: docker_swarm_manager
+  become: true
+  become_method: sudo
+
+  vars:
+    deploy_docker_service_name: "example_service"
+    deploy_docker_image: "nginx:latest"
+    deploy_docker_network: "example_network"
+
+  post_tasks:
+    - name: Create docker network for docker-swarm example service
+      docker_network:
+        name: "{{ deploy_docker_network }}"
+
+    - name: Deploy an example_service for docker-swarm
+      docker_swarm_service:
+        name: "{{ deploy_docker_service_name }}"
+        image: "{{ deploy_docker_image }}"
+        publish:
+          - published_port: 8080
+            target_port: 80
+        healthcheck:
+          # Check if nginx server is healthy by curl'ing the server.
+          # If this fails or timeouts, the healthcheck fails.
+          test: ["CMD", "curl", "--fail", "http://192.168.42.102:8080"]
+          interval: 2m
+          timeout: 10s
+          retries: 3
+          start_period: 30s
